@@ -61,7 +61,10 @@
             'overflow-y':settings.overflow,
             'z-index':settings.zIndexOut,
             'opacity':settings.opacityOut,
-            '-webkit-animation-duration':settings.animationDuration
+            '-webkit-animation-duration':settings.animationDuration,
+            '-moz-animation-duration':settings.animationDuration,
+            '-ms-animation-duration':settings.animationDuration,
+            'animation-duration':settings.animationDuration
         };
         //Apply stles
         id.css(initStyles);
@@ -78,6 +81,8 @@
 
                  if (id.hasClass(settings.modalTarget+'-on')) {
                     settings.beforeOpen();
+                    $(document).on('keyup', closeListener)
+
                     id.css({'opacity':settings.opacityIn,'z-index':settings.zIndexIn});
                     id.addClass(settings.animatedIn);  
                     id.one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', afterOpen);
@@ -86,24 +91,35 @@
         });
 
 
+        function closeListener(event) {
+          event.preventDefault();
 
-        closeBt.click(function(event) {
-            event.preventDefault();
-            $('body, html').css({'overflow':'auto'});
+          /*
+           * if the event type is keyup and the escape key is not pressed,
+           * we don't close the modal
+           */
+          if (event.type === 'keyup' && event.keyCode !== 27) {
+            return
+          }
 
-            settings.beforeClose(); //beforeClose
-            if (id.hasClass(settings.modalTarget+'-on')) {
-                id.removeClass(settings.modalTarget+'-on');
-                id.addClass(settings.modalTarget+'-off');
-            } 
+          $('body, html').css({'overflow': 'auto'});
 
-            if (id.hasClass(settings.modalTarget+'-off')) {
-                id.removeClass(settings.animatedIn);
-                id.addClass(settings.animatedOut);
-                id.one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', afterClose);
-            };
+          settings.beforeClose(); //beforeClose
+          $(document).off('keyup', closeListener)
 
-        });
+          if (id.hasClass(settings.modalTarget + '-on')) {
+            id.removeClass(settings.modalTarget + '-on');
+            id.addClass(settings.modalTarget + '-off');
+          }
+
+          if (id.hasClass(settings.modalTarget + '-off')) {
+            id.removeClass(settings.animatedIn);
+            id.addClass(settings.animatedOut);
+            id.one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', afterClose);
+          }
+        }
+
+        closeBt.click(closeListener);
 
         function afterClose () {       
             id.css({'z-index':settings.zIndexOut});
@@ -117,7 +133,3 @@
     }; // End animatedModal.js
 
 }(jQuery));
-
-
-
-        

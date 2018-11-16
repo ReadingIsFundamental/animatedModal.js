@@ -81,39 +81,54 @@
 
                  if (id.hasClass(settings.modalTarget+'-on')) {
                     settings.beforeOpen();
+                    $(document).on('keyup', closeListener)
+
                     id.css({'opacity':settings.opacityIn,'z-index':settings.zIndexIn});
-                    id.addClass(settings.animatedIn);  
+                    id.addClass(settings.animatedIn);
                     id.one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', afterOpen);
-                };  
-            } 
+                };
+            }
         });
 
 
+        function closeListener(event) {
 
-        closeBt.click(function(event) {
-            event.preventDefault();
-            $('body, html').css({'overflow':'auto'});
+          event.preventDefault();
 
-            settings.beforeClose(); //beforeClose
-            if (id.hasClass(settings.modalTarget+'-on')) {
-                id.removeClass(settings.modalTarget+'-on');
-                id.addClass(settings.modalTarget+'-off');
-            } 
+          /*
+          * if the event type is keyup and the escape key is not pressed,
+          * we don't close the modal
+*/
+          if (event.type === 'keyup' && event.keyCode !== 27) {
+            return
+          }
 
-            if (id.hasClass(settings.modalTarget+'-off')) {
-                id.removeClass(settings.animatedIn);
-                id.addClass(settings.animatedOut);
-                id.one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', afterClose);
-            };
+          $('body, html').css({'overflow': 'auto'});
 
-        });
+          settings.beforeClose(); //beforeClose
+          $(document).off('keyup', closeListener)
 
-        function afterClose () {       
+          if (id.hasClass(settings.modalTarget + '-on')) {
+            id.removeClass(settings.modalTarget + '-on');
+            id.addClass(settings.modalTarget + '-off');
+          }
+
+          if (id.hasClass(settings.modalTarget + '-off')) {
+            id.removeClass(settings.animatedIn);
+            id.addClass(settings.animatedOut);
+            id.one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', afterClose);
+          }
+
+        }
+
+        closeBt.click(closeListener);
+
+        function afterClose () {
             id.css({'z-index':settings.zIndexOut});
             settings.afterClose(); //afterClose
         }
 
-        function afterOpen () {       
+        function afterOpen () {
             settings.afterOpen(); //afterOpen
         }
 
